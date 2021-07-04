@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 import styled from "styled-components";
 import tw from "twin.macro";
 
-const BaseButton = styled.div`
+const BaseButton = styled.button`
   ${tw`
     px-4
     py-2
@@ -13,7 +13,7 @@ const BaseButton = styled.div`
     text-center
     border-2
     border-solid
-    cursor-pointer
+    border-gray-800
     focus:outline-none
     bg-blue-600
     hover:bg-blue-500

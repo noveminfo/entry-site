@@ -1,19 +1,24 @@
 import React, { ReactElement } from "react";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import tw from "twin.macro";
+
 import Button from "../../components/Button";
+import { TextInput } from "../../components/TextInput";
+import { auth } from "../../firebase";
 
 const FormContainer = styled.div`
   ${tw`
     flex
     flex-col
     w-96
-    h-60
     border-2
     border-solid
     border-blue-600
     py-4
-    px-6
+    px-8
   `}
 `;
 
@@ -34,44 +39,95 @@ const InputLabel = styled.span`
   `}
 `;
 
-const BaseInput = styled.input`
-  ${tw`
-    w-60
-    px-2
-    border-2
-    border-solid
-    border-blue-600
-    text-black
-    bg-white
-    focus:outline-none
-  `}
-`;
-
 const ButtonField = styled.div`
   ${tw`
     w-full
-    h-1/2
+    flex-1
+    text-center
   `}
 `;
 
-interface Props {}
+const ErrorMessage = styled.p`
+  ${tw`
+    text-red-500
+    text-sm
+    
+  `}
+`;
 
-export default function LoginForm({}: Props): ReactElement {
+interface FormInput {
+  email: string;
+  password: string;
+}
+
+export default function LoginForm(): ReactElement {
+  const [showLoginError, setShowLoginError] = useState(false);
+  const history = useHistory();
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormInput>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onVaild = async (data: FormInput) => {
+    await auth
+      .signInWithEmailAndPassword(data.email, data.password)
+      .then(() => history.push("/entrylist"))
+      .catch((_) => setShowLoginError(true));
+  };
+
   return (
     <FormContainer>
+      {showLoginError && (
+        <ErrorMessage>EmailまたはPasswordが正しくありません</ErrorMessage>
+      )}
       <InputField>
         <InputLabel>Email</InputLabel>
-        <BaseInput />
+        <div>
+          <Controller
+            name="email"
+            control={control}
+            render={({ field }) => (
+              <TextInput className={"w-60"} type="email" {...field} />
+            )}
+            rules={{
+              required: "Email未入力",
+              pattern: {
+                value: /\S+@\S+\.\S+/,
+                message: "正しいEmailを入力ください",
+              },
+            }}
+          />
+          {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
+        </div>
       </InputField>
       <InputField>
         <InputLabel>Password</InputLabel>
-        <BaseInput />
+        <div>
+          <Controller
+            name="password"
+            control={control}
+            render={({ field }) => (
+              <TextInput className={"w-60"} type="password" {...field} />
+            )}
+            rules={{ required: "Password未入力" }}
+          />
+          {errors.password && (
+            <ErrorMessage>{errors.password.message}</ErrorMessage>
+          )}
+        </div>
       </InputField>
       <ButtonField>
         <Button
           text={"ログイン"}
-          className={"w-36 mx-auto mt-8"}
-          onClick={() => null}
+          className={"w-36 my-6"}
+          onClick={handleSubmit(onVaild)}
         />
       </ButtonField>
     </FormContainer>
