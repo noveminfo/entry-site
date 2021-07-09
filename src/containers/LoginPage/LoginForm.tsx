@@ -126,7 +126,7 @@ export default function LoginForm(): ReactElement {
       <ButtonField>
         <Button
           text={"ログイン"}
-          className={"w-36 my-6"}
+          className={"w-36 my-6 py-2"}
           onClick={handleSubmit(onVaild)}
         />
       </ButtonField>
