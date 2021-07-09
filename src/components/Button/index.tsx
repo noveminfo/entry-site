@@ -4,8 +4,6 @@ import tw from "twin.macro";
 
 const BaseButton = styled.button`
   ${tw`
-    px-4
-    py-2
     rounded-lg
     outline-none
     text-white
