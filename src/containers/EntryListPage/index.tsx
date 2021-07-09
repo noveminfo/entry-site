@@ -61,33 +61,14 @@ export default function EntryListPage(): ReactElement {
   const query = entriesRef.orderBy("createdAt").limit(LIMIT);
   const [que, setQue] = useState(query);
   const [csvData, setCsvData] = useState<Data<EntryItem, "", "">[]>([]);
-
-  // let lastRef;
-  // let query2;
-  // entriesRef.get().then((doc) => console.log("docs", doc.docs));
-  // query.get().then((doc) => {
-  //   lastRef = doc.docs[0];
-  //   console.log(lastRef);
-  //   query2 = entriesRef.orderBy("createdAt").startAfter(lastRef).limit(1);
-  //   query2.get().then((snapshot) => {
-  //     snapshot.forEach((doc) => console.log(doc.data()));
-  //   });
-  // });
+  const [firstDocList, setFirstDocList] = useState<EntryItem[]>([]);
+  const [page, setPage] = useState(0);
 
   const [entries, loading] = useCollectionData<EntryItem>(que, {
     idField: "id",
   });
 
-  // entriesRef
-  //   .get()
-  //   .then((doc) => doc.forEach((item) => console.log(item.data())));
-
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<SearchEntry>({
+  const { control, handleSubmit } = useForm<SearchEntry>({
     defaultValues: {
       word: "",
     },
@@ -106,7 +87,6 @@ export default function EntryListPage(): ReactElement {
 
   useEffect(() => {
     if (entries) {
-      // setCsvData(JSON.stringify(entries));
       const tmpEntries = entries.map((entry) => ({
         ...entry,
         createdAt: entry.createdAt?.toDate().toLocaleString(),
@@ -118,27 +98,30 @@ export default function EntryListPage(): ReactElement {
 
   const handleMore = () => {
     if (entries && entries[LIMIT - 1]) {
+      setFirstDocList([...firstDocList, entries[0]]);
       setQue(
         entriesRef
           .orderBy("createdAt")
           .startAfter(entries[LIMIT - 1].createdAt)
           .limit(LIMIT)
       );
+      setPage((value) => value + 1);
     }
   };
 
   const handleBack = () => {
-    if (entries) {
+    if (entries && firstDocList[page - 1]) {
       setQue(
         entriesRef
           .orderBy("createdAt")
+          .startAt(firstDocList[page - 1].createdAt)
           .endBefore(entries[0].createdAt)
           .limit(LIMIT)
       );
+      setPage((value) => value - 1);
     }
   };
 
-  console.log(entries);
   return (
     <Layout title={"エントリー一覧"}>
       <>

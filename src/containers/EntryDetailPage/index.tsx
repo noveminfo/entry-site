@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from "react";
+import React, { ReactElement } from "react";
 import styled from "styled-components";
 import tw from "twin.macro";
 
@@ -42,6 +42,14 @@ const TextArea = styled.textarea`
     text-black
     bg-white
     focus:outline-none
+  `}
+`;
+
+const ErrorMessage = styled.p`
+  ${tw`
+    text-red-500
+    text-sm
+    
   `}
 `;
 
@@ -118,47 +126,64 @@ export default function EntryDetailPage(): ReactElement {
         <>
           <InputField>
             <InputLabel>氏名</InputLabel>
-            <Controller
-              name="name"
-              control={control}
-              render={({ field }) => (
-                <TextInput className={"w-52"} type="text" {...field} />
+            <div>
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <TextInput className={"w-52"} type="text" {...field} />
+                )}
+                rules={{ required: "氏名未入力" }}
+              />
+              {errors.name && (
+                <ErrorMessage>{errors.name.message}</ErrorMessage>
               )}
-              rules={{ required: "氏名未入力" }}
-            />
+            </div>
           </InputField>
           <InputField>
             <InputLabel>Email</InputLabel>
-            <Controller
-              name="email"
-              control={control}
-              render={({ field }) => (
-                <TextInput className={"w-52"} type="email" {...field} />
+            <div>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <TextInput className={"w-52"} type="email" {...field} />
+                )}
+                rules={{ required: "Email未入力" }}
+              />
+              {errors.email && (
+                <ErrorMessage>{errors.email.message}</ErrorMessage>
               )}
-              rules={{ required: "Email未入力" }}
-            />
+            </div>
           </InputField>
           <InputField>
             <InputLabel>年齢</InputLabel>
-            <Controller
-              name="age"
-              control={control}
-              render={({ field }) => (
-                <TextInput className={"w-16"} type="number" {...field} />
-              )}
-              rules={{ required: "年齢未入力" }}
-            />
+            <div>
+              <Controller
+                name="age"
+                control={control}
+                render={({ field }) => (
+                  <TextInput className={"w-16"} type="number" {...field} />
+                )}
+                rules={{ required: "年齢未入力" }}
+              />
+              {errors.age && <ErrorMessage>{errors.age.message}</ErrorMessage>}
+            </div>
             <InputLabel className="pl-2">歳</InputLabel>
           </InputField>
           <InputField>
             <InputLabel>希望職種</InputLabel>
-            <Controller
-              name="job"
-              control={control}
-              render={({ field }) => (
-                <SelectInput className="w-52" data={jobs} {...field} />
-              )}
-            />
+            <div>
+              <Controller
+                name="job"
+                control={control}
+                render={({ field }) => (
+                  <SelectInput className="w-52" data={jobs} {...field} />
+                )}
+                rules={{ validate: (value) => value !== "0" || "職種未選択" }}
+              />
+              {errors.job && <ErrorMessage>{errors.job.message}</ErrorMessage>}
+            </div>
           </InputField>
           <InputField>
             <InputLabel>希望理由</InputLabel>
@@ -172,13 +197,21 @@ export default function EntryDetailPage(): ReactElement {
           </InputField>
           <InputField>
             <InputLabel>ステータス</InputLabel>
-            <Controller
-              name="status"
-              control={control}
-              render={({ field }) => (
-                <SelectInput className="w-52" data={statuses} {...field} />
+            <div>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <SelectInput className="w-52" data={statuses} {...field} />
+                )}
+                rules={{
+                  validate: (value) => value !== "0" || "ステータス未選択",
+                }}
+              />
+              {errors.status && (
+                <ErrorMessage>{errors.status.message}</ErrorMessage>
               )}
-            />
+            </div>
           </InputField>
           <div>
             <Button

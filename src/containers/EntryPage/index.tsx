@@ -5,7 +5,7 @@ import tw from "twin.macro";
 import { Controller, useForm } from "react-hook-form";
 
 import Layout from "../../components/Layout";
-import { db, firestoreTimeStamp } from "../../firebase";
+import { db, firestoreTimeStamp, functions } from "../../firebase";
 import { TextInput } from "../../components/TextInput";
 import { SelectInput } from "../../components/SelectInput";
 import Button from "../../components/Button";
@@ -40,6 +40,14 @@ const TextArea = styled.textarea`
   `}
 `;
 
+const ErrorMessage = styled.p`
+  ${tw`
+    text-red-500
+    text-sm
+    
+  `}
+`;
+
 export default function EntryPage(): ReactElement {
   const jobsRef = db.collection("jobs");
   const [jobs] = useCollectionDataOnce(jobsRef);
@@ -49,7 +57,6 @@ export default function EntryPage(): ReactElement {
   const {
     control,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<EntryItem>();
 
@@ -62,7 +69,10 @@ export default function EntryPage(): ReactElement {
         reason: data.reason ?? "",
         createdAt: firestoreTimeStamp,
       })
-      .then(() => console.log("ok"))
+      .then(() => {
+        const sendMail = functions.httpsCallable("emailSender");
+        sendMail(data);
+      })
       .catch((err) => console.log(err));
   };
 
@@ -71,47 +81,62 @@ export default function EntryPage(): ReactElement {
       <>
         <InputField>
           <InputLabel>氏名</InputLabel>
-          <Controller
-            name="name"
-            control={control}
-            render={({ field }) => (
-              <TextInput className={"w-52"} type="text" {...field} />
-            )}
-            rules={{ required: "氏名未入力" }}
-          />
+          <div>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextInput className={"w-52"} type="text" {...field} />
+              )}
+              rules={{ required: "氏名未入力" }}
+            />
+            {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
+          </div>
         </InputField>
         <InputField>
           <InputLabel>Email</InputLabel>
-          <Controller
-            name="email"
-            control={control}
-            render={({ field }) => (
-              <TextInput className={"w-52"} type="email" {...field} />
+          <div>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextInput className={"w-52"} type="email" {...field} />
+              )}
+              rules={{ required: "Email未入力" }}
+            />
+            {errors.email && (
+              <ErrorMessage>{errors.email.message}</ErrorMessage>
             )}
-            rules={{ required: "Email未入力" }}
-          />
+          </div>
         </InputField>
         <InputField>
           <InputLabel>年齢</InputLabel>
-          <Controller
-            name="age"
-            control={control}
-            render={({ field }) => (
-              <TextInput className={"w-16"} type="number" {...field} />
-            )}
-            rules={{ required: "年齢未入力" }}
-          />
+          <div>
+            <Controller
+              name="age"
+              control={control}
+              render={({ field }) => (
+                <TextInput className={"w-16"} type="number" {...field} />
+              )}
+              rules={{ required: "年齢未入力" }}
+            />
+            {errors.age && <ErrorMessage>{errors.age.message}</ErrorMessage>}
+          </div>
           <InputLabel className="pl-2">歳</InputLabel>
         </InputField>
         <InputField>
           <InputLabel>希望職種</InputLabel>
-          <Controller
-            name="job"
-            control={control}
-            render={({ field }) => (
-              <SelectInput className="w-52" data={jobs} {...field} />
-            )}
-          />
+          <div>
+            <Controller
+              name="job"
+              control={control}
+              render={({ field }) => (
+                <SelectInput className="w-52" data={jobs} {...field} />
+              )}
+              rules={{ validate: (value) => value !== "0" || "職種未選択" }}
+            />
+            {errors.job && <ErrorMessage>{errors.job.message}</ErrorMessage>}
+          </div>
         </InputField>
         <InputField>
           <InputLabel>希望理由</InputLabel>
