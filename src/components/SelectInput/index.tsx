@@ -29,7 +29,7 @@ export const SelectInput = React.forwardRef(
     ref: React.Ref<HTMLSelectElement>
   ): ReactElement => (
     <BaseSelect ref={ref} className={className} {...rest}>
-      <option value="">選択してください</option>
+      <option value="0">選択してください</option>
       {data?.map((item, index) => (
         <option key={index} value={item.name}>
           {item.name}
