@@ -36,7 +36,7 @@ export const emailSender = functions.https.onCall((data, res) => {
     年齢： ${data.age}
     メールアドレス： ${data.email}
     希望職種： ${data.job}
-    希望理由： ${data.reason}
+    希望理由： ${data.reason ?? ""}
 
     以上、
     よろしくお願いいたします。

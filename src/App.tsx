@@ -11,7 +11,6 @@ function App(): ReactElement {
   return (
     <BrowserRouter>
       <Switch>
-        <Route exact path="/" component={EntryPage} />
         <Route exact path="/login" component={LoginPage} />
         <PrivateRoute exact path="/entrylist">
           <EntryListPage />
@@ -19,6 +18,7 @@ function App(): ReactElement {
         <PrivateRoute exact path="/entrylist/:id">
           <EntryDetailPage />
         </PrivateRoute>
+        <Route path="/" component={EntryPage} />
       </Switch>
     </BrowserRouter>
   );
